@@ -6,7 +6,7 @@ import stat
 import shutil
 import codecs
 from collections import defaultdict
-from cStringIO import StringIO
+from StringIO import StringIO
 from subprocess import Popen, PIPE
 import warnings
 
@@ -433,7 +433,7 @@ def _static_file(filename,
                 else:
                     extension = os.path.splitext(filepath)[1]
                 each_m_times.append(os.stat(filepath)[stat.ST_MTIME])
-                new_file_content.write(open(filepath, 'r').read().strip())
+                new_file_content.write(codecs.open(filepath, 'r','utf-8').read().strip())
                 new_file_content.write('\n')
 
             filename = _combine_filenames(filename)
@@ -596,7 +596,7 @@ def _static_file(filename,
                     raise
     elif is_combined_files:
         #print "** STORING COMBO:", new_filepath
-        open(new_filepath, 'w').write(new_file_content.getvalue())
+        codecs.open(new_filepath, 'w','utf-8').write(new_file_content.getvalue())
     else:
         # straight copy
         #print "** STORING COPY:", new_filepath
@@ -737,7 +737,9 @@ def optimize(content, type_):
             return _run_yui_compressor(content, type_)
         if getattr(settings, 'DJANGO_STATIC_JSMIN', None):
             return _run_jsmin(content)
-        return slimmer.js_slimmer(content)
+        if slimmer:
+            return slimmer.js_slimmer(content)
+        return content
     else:
         raise ValueError("Invalid type %r" % type_)
 
